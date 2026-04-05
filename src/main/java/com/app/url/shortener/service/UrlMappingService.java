@@ -49,6 +49,8 @@ public class UrlMappingService {
     public String getOriginalUrl(String shortUrl) {
         Urlmapping urlmapping = urlMappingRepository.getUrlMappingByShortUrl(shortUrl)
                 .orElseThrow(() -> new UrlMappingNotFoundException("UrlMapping Not Found"));
+        urlmapping.setClickCount(urlmapping.getClickCount() + 1);
+        urlMappingRepository.save(urlmapping);
         return urlmapping.getOriginalUrl();
     }
 }
