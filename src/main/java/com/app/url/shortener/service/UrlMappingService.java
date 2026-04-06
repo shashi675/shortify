@@ -4,17 +4,33 @@ import com.app.url.shortener.Exception.UrlMappingNotFoundException;
 import com.app.url.shortener.model.UrlMappingDTO;
 import com.app.url.shortener.model.Urlmapping;
 import com.app.url.shortener.repository.UrlMappingRepository;
-import lombok.AllArgsConstructor;
+import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Random;
 
+@Slf4j
 @Service
-@AllArgsConstructor
+//@AllArgsConstructor
+//@NoArgsConstructor
+//constructor will not work if @Value is used, since Spring injects @Value after object creation
 public class UrlMappingService {
+
+    private String myServerUrl;
     private UrlMappingRepository urlMappingRepository;
 
+    public UrlMappingService(@Value("${myserver.url}") String myServerUrl, UrlMappingRepository urlMappingRepository) {
+        this.myServerUrl = myServerUrl;
+        this.urlMappingRepository = urlMappingRepository;
+    }
+
+    @PostConstruct
+    public void init() {
+        log.info("myServerUrl {}", myServerUrl);
+    }
 
     public UrlMappingDTO shortenUrl(String originalUrl) {
         String shortUrl = createShortUrl(originalUrl);
@@ -23,6 +39,7 @@ public class UrlMappingService {
         urlmapping.setShortUrl(shortUrl);
         urlmapping.setCreatedTime(LocalDateTime.now());
         Urlmapping savedUrlMapping = urlMappingRepository.save(urlmapping);
+        urlmapping.setShortUrl(myServerUrl + "/" +shortUrl);
         UrlMappingDTO urlMappingDTO = toUrlMappingDTO(savedUrlMapping);
         return urlMappingDTO;
     }

@@ -23,14 +23,4 @@ public class UrlController {
         UrlMappingDTO urlMappingDTO = urlMappingService.shortenUrl(req.get("originalUrl"));
         return new ResponseEntity<>(urlMappingDTO,HttpStatus.CREATED);
     }
-
-
-    @GetMapping("/{shortUrl}")
-    public ResponseEntity<String> getOriginalUrl(@PathVariable String shortUrl) {
-        String originalUrl = urlMappingService.getOriginalUrl(shortUrl);
-
-        return ResponseEntity.status(HttpStatus.FOUND)
-                .location(URI.create(originalUrl))
-                .build();
-    }
 }
