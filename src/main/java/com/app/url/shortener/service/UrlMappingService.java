@@ -23,19 +23,19 @@ import java.util.Random;
 //so used @Value in the constructor
 public class UrlMappingService {
 
-    private String myServerUrl;
+//    private String myServerUrl;
     private UrlMappingRepository urlMappingRepository;
     private UrlClicksRepository urlClicksRepository;
 
-    public UrlMappingService(@Value("${myserver.url}") String myServerUrl, UrlMappingRepository urlMappingRepository,  UrlClicksRepository urlClicksRepository) {
-        this.myServerUrl = myServerUrl;
+//    public UrlMappingService(@Value("${myserver.url}") String myServerUrl, UrlMappingRepository urlMappingRepository,  UrlClicksRepository urlClicksRepository) {
+//        this.myServerUrl = myServerUrl;
+//        this.urlMappingRepository = urlMappingRepository;
+//        this.urlClicksRepository = urlClicksRepository;
+//    }
+
+    public UrlMappingService(UrlMappingRepository urlMappingRepository, UrlClicksRepository urlClicksRepository) {
         this.urlMappingRepository = urlMappingRepository;
         this.urlClicksRepository = urlClicksRepository;
-    }
-
-    @PostConstruct
-    public void init() {
-        log.info("myServerUrl {}", myServerUrl);
     }
 
     public UrlMappingDTO shortenUrl(String originalUrl) {
@@ -45,7 +45,7 @@ public class UrlMappingService {
         urlmapping.setShortUrl(shortUrl);
         urlmapping.setCreatedTime(LocalDateTime.now());
         Urlmapping savedUrlMapping = urlMappingRepository.save(urlmapping);
-        urlmapping.setShortUrl(myServerUrl + "/" +shortUrl);
+//        urlmapping.setShortUrl(myServerUrl + "/" +shortUrl);
         UrlMappingDTO urlMappingDTO = toUrlMappingDTO(savedUrlMapping);
         return urlMappingDTO;
     }
