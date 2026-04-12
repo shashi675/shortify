@@ -4,11 +4,17 @@ import com.app.url.shortener.Exception.UrlMappingNotFoundException;
 import com.app.url.shortener.model.UrlClicks;
 import com.app.url.shortener.model.UrlMappingDTO;
 import com.app.url.shortener.model.Urlmapping;
+import com.app.url.shortener.model.User;
 import com.app.url.shortener.repository.UrlClicksRepository;
 import com.app.url.shortener.repository.UrlMappingRepository;
+import com.app.url.shortener.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -17,7 +23,7 @@ import java.util.Random;
 
 @Slf4j
 @Service
-//@AllArgsConstructor
+@AllArgsConstructor
 //@NoArgsConstructor
 //constructor will not work if @Value is used, since Spring injects @Value after object creation
 //so used @Value in the constructor
@@ -26,6 +32,7 @@ public class UrlMappingService {
 //    private String myServerUrl;
     private UrlMappingRepository urlMappingRepository;
     private UrlClicksRepository urlClicksRepository;
+    private UserRepository userRepository;
 
 //    public UrlMappingService(@Value("${myserver.url}") String myServerUrl, UrlMappingRepository urlMappingRepository,  UrlClicksRepository urlClicksRepository) {
 //        this.myServerUrl = myServerUrl;
@@ -33,17 +40,17 @@ public class UrlMappingService {
 //        this.urlClicksRepository = urlClicksRepository;
 //    }
 
-    public UrlMappingService(UrlMappingRepository urlMappingRepository, UrlClicksRepository urlClicksRepository) {
-        this.urlMappingRepository = urlMappingRepository;
-        this.urlClicksRepository = urlClicksRepository;
-    }
-
     public UrlMappingDTO shortenUrl(String originalUrl) {
         String shortUrl = createShortUrl(originalUrl);
         Urlmapping urlmapping = new Urlmapping();
         urlmapping.setOriginalUrl(originalUrl);
         urlmapping.setShortUrl(shortUrl);
         urlmapping.setCreatedTime(LocalDateTime.now());
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Username not found"));
+        urlmapping.setUser(user);
         Urlmapping savedUrlMapping = urlMappingRepository.save(urlmapping);
 //        urlmapping.setShortUrl(myServerUrl + "/" +shortUrl);
         UrlMappingDTO urlMappingDTO = toUrlMappingDTO(savedUrlMapping);
